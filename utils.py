@@ -1,2 +1,5 @@
 def calculate_internal_metric(a, b):
-    return a / b  #No error handling (division by zero crash)
+    try:
+        return a / b
+    except ZeroDivisionError:
+        return {"error": "Cannot divide by zero"}
