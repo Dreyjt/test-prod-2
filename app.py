@@ -9,7 +9,7 @@ app = Flask(__name__)
 @app.route("/")
 def home():
     return jsonify({
-        "message": "Internal Utility Service Running",
+        "message": "Auto Internal Utility Service Running",
         "environment": os.getenv("ENVIRONMENT", "production")
     })
 
