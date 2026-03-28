@@ -52,7 +52,7 @@ jobs:
         run: docker push ${{ secrets.DOCKER_USERNAME }}/internal-utility-service:latest
 
   # -------------------------
-  # 3. Deploy Job (BLUE-GREEN)
+  # 3. Deploy Job (BLUE-GREEN + ZERO DOWNTIME)
   # -------------------------
   deploy:
     runs-on: ubuntu-latest
@@ -71,13 +71,14 @@ jobs:
             echo "Pulling latest image..."
             docker pull $IMAGE
 
-            echo "Checking current running container..."
-            if docker ps --format '{{.Names}}' | grep -q app; then
+            echo "Detecting active container..."
+
+            if docker ps --format '{{.Names}}' | grep -q app_blue; then
               NEW_CONTAINER=app_green
-              OLD_CONTAINER=app
+              OLD_CONTAINER=app_blue
               NEW_PORT=5001
             else
-              NEW_CONTAINER=app
+              NEW_CONTAINER=app_blue
               OLD_CONTAINER=app_green
               NEW_PORT=5000
             fi
@@ -85,8 +86,16 @@ jobs:
             echo "Starting new container: $NEW_CONTAINER on port $NEW_PORT"
             docker run -d --restart always -p $NEW_PORT:5000 --name $NEW_CONTAINER $IMAGE
 
-            echo "Waiting for container to boot..."
-            sleep 10
+            echo "Waiting for new container to be healthy..."
+
+            for i in {1..15}; do
+              if curl -s http://localhost:$NEW_PORT/health | grep -q "healthy"; then
+                echo "New container is healthy!"
+                break
+              fi
+              echo "Waiting..."
+              sleep 2
+            done
 
             echo "Switching Nginx to new container..."
             sudo sed -i "s/localhost:[0-9]*/localhost:$NEW_PORT/" /etc/nginx/sites-available/default
@@ -95,7 +104,7 @@ jobs:
             sudo systemctl reload nginx
 
             echo "Stopping old container..."
-            docker stop $OLD_CONTAINER || true
-            docker rm $OLD_CONTAINER || true
+            docker stop $OLD_CONTAINER 2>/dev/null || true
+            docker rm $OLD_CONTAINER 2>/dev/null || true
 
-            echo "Deployment complete "
+            echo "Deployment complete 🚀"
