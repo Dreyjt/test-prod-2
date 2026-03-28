@@ -9,7 +9,7 @@ app = Flask(__name__)
 @app.route("/")
 def home():
     return jsonify({
-        "message": "Auto Internal Utility Service Running for blue green deployment",
+        "message": "Website Running on blue green deployment",
         "environment": os.getenv("ENVIRONMENT", "production")
     })
 
