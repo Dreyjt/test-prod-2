@@ -72,12 +72,12 @@ jobs:
             docker pull $IMAGE
 
             echo "Checking current running container..."
-            if docker ps --format '{{.Names}}' | grep -q app_blue; then
+            if docker ps --format '{{.Names}}' | grep -q app; then
               NEW_CONTAINER=app_green
-              OLD_CONTAINER=app_blue
+              OLD_CONTAINER=app
               NEW_PORT=5001
             else
-              NEW_CONTAINER=app_blue
+              NEW_CONTAINER=app
               OLD_CONTAINER=app_green
               NEW_PORT=5000
             fi
