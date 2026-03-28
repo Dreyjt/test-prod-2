@@ -3,3 +3,4 @@ pytest
 flake8
 gunicorn
 Werkzeug==2.3.7
+boto3
