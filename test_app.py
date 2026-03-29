@@ -51,7 +51,7 @@ def test_health(client):
 def test_health_response(client):
     response = client.get('/health')
     data = response.get_json()
-    assert data["status"] == "OK"
+    assert data["status"] == "BROKEN"
 
 
 # 8. Test invalid route
