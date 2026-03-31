@@ -89,7 +89,7 @@ jobs:
             echo "Waiting for new container to be healthy..."
 
             for i in {1..15}; do
-              if curl -s http://localhost:$NEW_PORT/health | grep -q "healthy"; then
+              if curl -s http://localhost:$NEW_PORT/health | grep -q "OK"; then
                 echo "New container is healthy!"
                 break
               fi
